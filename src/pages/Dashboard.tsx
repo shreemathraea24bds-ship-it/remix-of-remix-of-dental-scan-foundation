@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { Shield, LogOut, Home, CreditCard, ShieldAlert, Bell, IndianRupee, Receipt } from "lucide-react";
+import { Shield, LogOut, Home, CreditCard, ShieldAlert, Bell, IndianRupee, Receipt, HeartPulse } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TriageQueue from "@/components/dashboard/TriageQueue";
 import ClinicalView from "@/components/dashboard/ClinicalView";
@@ -157,6 +157,15 @@ const Dashboard = () => {
           >
             <IndianRupee className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Revenue</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-1.5 text-xs h-7"
+            onClick={() => navigate("/health-tips")}
+          >
+            <HeartPulse className="w-3.5 h-3.5 text-primary" />
+            <span className="hidden sm:inline">Health Tips</span>
           </Button>
           <span className="text-xs text-muted-foreground hidden md:inline">{profile?.full_name || user?.email}</span>
           <Button variant="ghost" size="icon" className="w-8 h-8" onClick={() => { signOut(); navigate("/auth"); }}>

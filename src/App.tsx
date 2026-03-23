@@ -28,6 +28,7 @@ import DoctorWalkthrough from "./pages/DoctorWalkthrough";
 import PitchDeck from "./pages/PitchDeck";
 import DoctorSignup from "./pages/DoctorSignup";
 import Revenue from "./pages/Revenue";
+import HealthTips from "./pages/HealthTips";
 
 import NotFound from "./pages/NotFound";
 
@@ -72,6 +73,7 @@ const AppContent = () => {
             <Route path="/tools-dashboard" element={<ProtectedRoute><ToolsDashboard /></ProtectedRoute>} />
             <Route path="/reviews" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
             <Route path="/revenue" element={<ProtectedRoute><Revenue /></ProtectedRoute>} />
+            <Route path="/health-tips" element={<ProtectedRoute><HealthTips /></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
