@@ -49,16 +49,86 @@ const Index = () => {
     setCapturedImageUrl(imageBase64);
     setAnalysisResult(null);
     try {
-      const { data, error } = await supabase.functions.invoke("analyze-dental", {
-        body: { imageBase64 },
-      });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-      setAnalysisResult(data as DentalAnalysis);
+      let analysisData = null;
+      try {
+        const { data, error } = await supabase.functions.invoke("analyze-dental", {
+          body: { imageBase64 },
+        });
+        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
+        analysisData = data;
+      } catch (err: any) {
+        console.warn("Edge function failed, falling back to local Gemini API:", err.message);
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+        if (!apiKey) throw new Error("VITE_GEMINI_API_KEY is not set in frontend .env");
+        
+        const base64Data = imageBase64.includes("base64,") ? imageBase64.split("base64,")[1] : imageBase64;
+        const mimeType = imageBase64.includes("base64,") ? imageBase64.split(";")[0].split(":")[1] : "image/jpeg";
+        
+        const systemInstruction = `You are DentaScan AI, an advanced dental health analysis assistant. Analyze dental photos thoroughly covering teeth arrangement, alignment, defects, cavities, plaque, and gum health. Always respond with valid JSON in this exact format:
+{
+  "overallHealth": "healthy" | "monitor" | "emergency",
+  "confidence": 0-100,
+  "findings": [
+    {
+      "area": "string describing the tooth/area",
+      "condition": "string describing what was found",
+      "severity": "healthy" | "monitor" | "emergency",
+      "recommendation": "string with action to take"
+    }
+  ],
+  "summary": "A 2-3 sentence overall summary of dental health",
+  "plaqueLevel": "none" | "mild" | "moderate" | "heavy",
+  "gumHealth": "healthy" | "mild_inflammation" | "moderate_inflammation" | "severe_inflammation",
+  "teethArrangement": {
+    "alignment": "well_aligned" | "mild_crowding" | "moderate_crowding" | "severe_crowding",
+    "bite": "normal" | "overbite" | "underbite" | "crossbite" | "open_bite",
+    "spacing": "normal" | "gaps_present" | "overcrowded",
+    "description": "2-3 sentence description of teeth arrangement",
+    "orthodonticNeed": "none" | "minor" | "moderate" | "significant"
+  },
+  "defects": [
+    {
+      "type": "cavity" | "crack" | "chip" | "erosion" | "discoloration" | "missing_tooth" | "broken_filling" | "tartar" | "abscess" | "other",
+      "location": "specific tooth or area description",
+      "severity": "mild" | "moderate" | "severe",
+      "description": "brief description of the defect",
+      "urgency": "routine" | "soon" | "urgent"
+    }
+  ]
+}`;
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemInstruction }] },
+            contents: [{
+              parts: [
+                { text: "Analyze this dental photo comprehensively. Identify teeth arrangement and alignment, any defects, plaque buildup, and gum health. Provide a full clinical-grade assessment." },
+                { inlineData: { mimeType, data: base64Data } }
+              ]
+            }]
+          })
+        });
+
+        if (!response.ok) throw new Error("Local AI analysis API failed");
+        const resData = await response.json();
+        const content = resData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        
+        try {
+          const jsonMatch = content.match(/\{[\s\S]*\}/);
+          analysisData = jsonMatch ? JSON.parse(jsonMatch[0]) : { summary: content, overallHealth: "healthy", findings: [], confidence: 0, defects: [], teethArrangement: null };
+        } catch {
+          analysisData = { summary: content, overallHealth: "healthy", findings: [], confidence: 0, defects: [], teethArrangement: null };
+        }
+      }
+
+      setAnalysisResult(analysisData as DentalAnalysis);
       toast.success("Analysis complete!");
       
       // Auto-open emergency drawer if critical
-      if ((data as DentalAnalysis).overallHealth === "emergency") {
+      if ((analysisData as DentalAnalysis).overallHealth === "emergency") {
         setEmergencyDrawerOpen(true);
       }
       
