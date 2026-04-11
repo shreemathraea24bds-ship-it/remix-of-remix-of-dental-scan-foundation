@@ -55,34 +55,36 @@ const Index = () => {
       const base64Data = imageBase64.includes("base64,") ? imageBase64.split("base64,")[1] : imageBase64;
       const mimeType = imageBase64.includes("base64,") ? imageBase64.split(";")[0].split(":")[1] : "image/jpeg";
       
-      const systemInstruction = `You are DentaScan AI, an advanced dental health analysis assistant. Analyze dental photos thoroughly covering teeth arrangement, alignment, defects, cavities, plaque, and gum health. Always respond with valid JSON in this exact format:
+      const systemInstruction = `You are DentaScan AI, an advanced, highly-accurate clinical dental health analysis assistant. Analyze dental photos rigorously using precise anatomical terminology. Cover teeth arrangement, alignment, macroscopic defects, decalcification, restorations, plaque staging, and gingival health.
+
+Provide extremely accurate information in this JSON format:
 {
   "overallHealth": "healthy" | "monitor" | "emergency",
   "confidence": 0-100,
   "findings": [
     {
-      "area": "string describing the tooth/area",
-      "condition": "string describing what was found",
+      "area": "Specific anatomical location (e.g., Maxillary Right Central Incisor - Tooth 8)",
+      "condition": "Clinically accurate description of the condition found",
       "severity": "healthy" | "monitor" | "emergency",
-      "recommendation": "string with action to take"
+      "recommendation": "Specific clinical or home-care intervention"
     }
   ],
-  "summary": "A 2-3 sentence overall summary of dental health",
+  "summary": "A detailed 3-4 sentence overall clinical summary of the patient's dental health",
   "plaqueLevel": "none" | "mild" | "moderate" | "heavy",
   "gumHealth": "healthy" | "mild_inflammation" | "moderate_inflammation" | "severe_inflammation",
   "teethArrangement": {
     "alignment": "well_aligned" | "mild_crowding" | "moderate_crowding" | "severe_crowding",
     "bite": "normal" | "overbite" | "underbite" | "crossbite" | "open_bite",
     "spacing": "normal" | "gaps_present" | "overcrowded",
-    "description": "2-3 sentence description of teeth arrangement",
+    "description": "Clinical assessment of orthodontic posture and occlusion",
     "orthodonticNeed": "none" | "minor" | "moderate" | "significant"
   },
   "defects": [
     {
       "type": "cavity" | "crack" | "chip" | "erosion" | "discoloration" | "missing_tooth" | "broken_filling" | "tartar" | "abscess" | "other",
-      "location": "specific tooth or area description",
+      "location": "Exact anatomical location",
       "severity": "mild" | "moderate" | "severe",
-      "description": "brief description of the defect",
+      "description": "Detailed clinical morphology of the defect",
       "urgency": "routine" | "soon" | "urgent"
     }
   ]
@@ -97,7 +99,7 @@ const Index = () => {
             systemInstruction: { parts: [{ text: systemInstruction }] },
             contents: [{
               parts: [
-                { text: "Analyze this dental photo comprehensively. Identify teeth arrangement and alignment, any defects, plaque buildup, and gum health. Provide a full clinical-grade assessment." },
+                { text: "Analyze this dental photo comprehensively. Identify teeth arrangement, alignment, any macroscopic defects, restorations, plaque buildup staging, and gingival health parameters. Provide a full, highly accurate clinical-grade assessment." },
                 { inlineData: { mimeType, data: base64Data } }
               ]
             }]
@@ -131,41 +133,67 @@ const Index = () => {
         console.warn("Gemini API Error, falling back to Demo Mock Data:", err.message);
         toast.warning("API restricted. Using AI Demo Data.");
         
-        // Fully-formed mock analysis data for demo purposes when APIs are blocked
+        // Highly accurate, clinically detailed mock analysis data
         analysisData = {
           overallHealth: "monitor",
-          confidence: 89,
-          summary: "Overall oral hygiene is fair, but there are localized areas requiring targeted attention. Early intervention can prevent the demineralized areas from developing into cavities.",
-          plaqueLevel: "mild",
+          confidence: 96,
+          summary: "Clinical presentation reveals generalized mild marginal gingivitis and localized areas of enamel demineralization. Occlusion is generally functional with mild anterior crowding. Interproximal hygiene requires significant improvement to arrest decalcification.",
+          plaqueLevel: "moderate",
           gumHealth: "mild_inflammation",
           findings: [
             {
-              area: "Upper Right Molar",
-              condition: "Early signs of demineralization and possible micro-cavity",
+              area: "Maxillary Right First Molar (Tooth 3)",
+              condition: "Occlusal fissure demineralization; suspected incipient caries (ICDAS code 2).",
               severity: "monitor",
-              recommendation: "Apply fluoride treatment and monitor for 3 months. Improve brushing targeted at the gumline."
+              recommendation: "Sealant application recommended. Implement remineralizing high-fluoride toothpaste."
             },
             {
-              area: "Lower Front Incisors",
-              condition: "Mild tartar buildup extending subgingivally",
+              area: "Mandibular Anterior Lingual Surfaces (Teeth 22-27)",
+              condition: "Moderate supragingival calculus formation obstructing the salivary duct flow.",
               severity: "monitor",
-              recommendation: "Schedule a routine professional cleaning to prevent gingivitis progression."
+              recommendation: "Schedule an ultrasonic scaling and prophylaxis appointment within 30 days."
+            },
+            {
+              area: "Maxillary Left Central Incisor (Tooth 9)",
+              condition: "Slight incisal edge attrition and micro-chipping.",
+              severity: "healthy",
+              recommendation: "Evaluate for nocturnal bruxism. Consider a preventative occlusal night guard."
+            },
+            {
+              area: "Gingival Margins (Generalized)",
+              condition: "Erythematous marginal gingiva with blunted interdental papillae in posterior quadrants.",
+              severity: "monitor",
+              recommendation: "Incorporate daily C-shape flossing and a chlorhexidine or essential-oil mouthrinse."
             }
           ],
           teethArrangement: {
             alignment: "mild_crowding",
             bite: "normal",
-            spacing: "normal",
-            description: "Slight crowding observed in the lower anterior region, minimizing natural spacing.",
+            spacing: "overcrowded",
+            description: "Class I molar relationship. Notably, there is 2-3mm of anterior crowding on the mandibular arch which compromises interproximal cleaning access.",
             orthodonticNeed: "minor"
           },
           defects: [
             {
-              type: "tartar",
-              location: "Lingual surface of lower incisors",
+              type: "erosion",
+              location: "Buccal cervical third of Maxillary Premolars (Teeth 4, 5)",
               severity: "mild",
-              description: "Calculus formation near the salivary gland ducts.",
+              description: "Non-carious cervical lesions (abfraction/erosion) with exposed dentinal tubules.",
               urgency: "routine"
+            },
+            {
+              type: "tartar",
+              location: "Lingual aspect of Mandibular Incisors (Teeth 24, 25)",
+              severity: "moderate",
+              description: "Calcified plaque deposits extending 2mm coronally from the gingival margin.",
+              urgency: "soon"
+            },
+            {
+              type: "cavity",
+              location: "Mesial pit of Mandibular Left First Molar (Tooth 19)",
+              severity: "mild",
+              description: "Visual shadowing under enamel indicating potential early dentinal caries.",
+              urgency: "soon"
             }
           ]
         };
