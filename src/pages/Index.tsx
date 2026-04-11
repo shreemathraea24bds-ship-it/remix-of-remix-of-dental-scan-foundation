@@ -103,7 +103,16 @@ const Index = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`Google Gemini API failed: ${response.statusText}`);
+        let errorMessage = response.statusText;
+        try {
+          const errorData = await response.json();
+          if (errorData.error && errorData.error.message) {
+            errorMessage = errorData.error.message;
+          }
+        } catch (e) {
+          // fallback to status text
+        }
+        throw new Error(`Gemini API Error: ${errorMessage}`);
       }
 
       const resData = await response.json();
