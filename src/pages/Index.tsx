@@ -50,7 +50,7 @@ const Index = () => {
     setAnalysisResult(null);
     try {
       // Bypassing Edge Function entirely to guarantee resolution of the 500 status code error.
-      const apiKey = "AIzaSyCI7rOT-niVIxG5sdWGD2x9VMkrMSkpGsA";
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "AIzaSyBuvsNp3awZBvYvn_Dvo4dbduTueP_rKy8";
       
       const base64Data = imageBase64.includes("base64,") ? imageBase64.split("base64,")[1] : imageBase64;
       const mimeType = imageBase64.includes("base64,") ? imageBase64.split(";")[0].split(":")[1] : "image/jpeg";
