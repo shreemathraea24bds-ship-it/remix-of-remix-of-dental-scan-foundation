@@ -175,128 +175,20 @@ const BiteForceAnalysis = () => {
       .slice(0, 10);
 
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-
-      const systemInstruction = `You are DentaScan AI, an advanced acoustic analysis assistant for dental bite-force and TMJ diagnostics. 
-Analyze the provided acoustic frequency data from jaw movements (clenching, grinding, or TMJ clicking).
-Respond ONLY with valid JSON exactly matching this structure:
-{
-  "diagnosis": "normal" | "mild_bruxism" | "moderate_bruxism" | "severe_bruxism" | "tmj_click" | "malocclusion" | "tooth_damage" | "insufficient_data",
-  "confidence": 0-100,
-  "summary": "Detailed 3-4 sentence clinical summary of these acoustic findings",
-  "patterns": [
-    { "type": "string", "frequencyRange": "string", "intensity": "low" | "medium" | "high", "duration": "string" }
-  ],
-  "defects": [
-    { "name": "string", "severity": "mild" | "moderate" | "severe", "description": "string", "soundIndicator": "string", "affectedArea": "string" }
-  ],
-  "recovery": [
-    { "title": "string", "type": "immediate" | "short_term" | "long_term", "description": "string", "homeRemedy": "string", "professionalTreatment": "string" }
-  ],
-  "exercises": [
-    { "name": "string", "steps": "string", "frequency": "string", "benefit": "string" }
-  ],
-  "dietaryAdvice": ["string"],
-  "riskFactors": ["string"],
-  "recommendations": ["string"],
-  "nightGuardRecommended": boolean,
-  "followUpDays": number
-}`;
-
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemInstruction }] },
-          contents: [{
-            parts: [{ 
-              text: `Analyze this bite force acoustic data: Duration: ${duration}s, RMS Level: ${rmsLevel}. Dominant Frequencies: ${JSON.stringify(avgPeaks)}` 
-            }]
-          }]
-        })
+      const { data, error } = await supabase.functions.invoke("analyze-bite-force", {
+        body: {
+          frequencyData: lastFreqData.slice(0, 128),
+          dominantFrequencies: avgPeaks,
+          duration,
+          rmsLevel: Math.round(rmsLevel * 100) / 100,
+        },
       });
-
-      if (!response.ok) {
-        let errorMessage = response.statusText;
-        try {
-          const errorData = await response.json();
-          if (errorData.error && errorData.error.message) {
-            errorMessage = errorData.error.message;
-          }
-        } catch (e) {}
-        throw new Error(errorMessage);
-      }
-
-      const resData = await response.json();
-      const content = resData.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      
-      try {
-        const jsonMatch = content.match(/\{[\s\S]*\}/);
-        const data = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
-        if (!data) throw new Error("Invalid format");
-        setResult(data as BiteAnalysis);
-        toast.success("Analysis complete!");
-      } catch {
-        throw new Error("Failed to parse output");
-      }
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setResult(data as BiteAnalysis);
+      toast.success("Analysis complete!");
     } catch (err: any) {
-      console.warn("Bite Force API Error, falling back to Demo Mock Data:", err.message);
-      toast.warning("API restricted. Using AI Demo Data.");
-      
-      const mockResult: BiteAnalysis = {
-        diagnosis: "moderate_bruxism",
-        confidence: 93,
-        summary: "Acoustic profiling reveals high-frequency grinding patterns predominantly occurring during sustained pressure intervals. RMS amplitude levels indicate forceful clenching consistent with moderate nocturnal bruxism, leading to potential enamel micro-fracturing.",
-        patterns: [
-          { type: "grinding", frequencyRange: "150Hz - 400Hz", intensity: "high", duration: "Sustained" },
-          { type: "tmj_crepitus", frequencyRange: "800Hz - 1200Hz", intensity: "medium", duration: "Intermittent" }
-        ],
-        defects: [
-          {
-            name: "Enamel Attrition Risk",
-            severity: "moderate",
-            description: "High friction acoustic signature suggesting lateral excursive grinding against posterior molars.",
-            soundIndicator: "Continuous high-pitch friction during lateral movement",
-            affectedArea: "Posterior Occlusal Surfaces"
-          }
-        ],
-        recovery: [
-          {
-            title: "Masseter Tension Release",
-            type: "immediate",
-            description: "Acutely reduce muscular tension in the jaw elevator muscles.",
-            homeRemedy: "Apply warm, moist compresses to the sides of the jaw for 15 minutes twice daily.",
-            professionalTreatment: "Consider trigger point injections or Botox therapy if conservative measures fail."
-          }
-        ],
-        exercises: [
-          {
-            name: "Rested Jaw Posture",
-            steps: "Place the tip of your tongue on the roof of your mouth behind your top front teeth. Let teeth come apart slightly and relax jaw muscles.",
-            frequency: "Throughout the day",
-            benefit: "Prevents clenching and establishes a healthy resting position."
-          }
-        ],
-        dietaryAdvice: [
-          "Consume a soft diet for the next 7 days (e.g., yogurt, mashed potatoes, smoothies).",
-          "Avoid excessive chewing like gum or tough meats.",
-          "Eliminate caffeinated beverages after 2 PM to improve nocturnal muscle relaxation."
-        ],
-        riskFactors: [
-          "High stress levels contributing to unconscious clenching.",
-          "Potential airway resistance or sleep apnea triggering bruxism.",
-          "Developing TMJ disc displacement indicated by crepitus."
-        ],
-        recommendations: [
-          "Immediate fabrication and nightly usage of a hard acrylic occlusal splint.",
-          "Evaluate sleep quality to rule out sleep-disordered breathing.",
-          "Begin daily jaw relaxation exercises."
-        ],
-        nightGuardRecommended: true,
-        followUpDays: 14
-      };
-      
-      setResult(mockResult);
+      toast.error(err.message || "Analysis failed");
     } finally {
       setIsAnalyzing(false);
     }
