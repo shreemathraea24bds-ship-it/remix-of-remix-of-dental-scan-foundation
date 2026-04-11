@@ -22,8 +22,8 @@ import { LayoutDashboard, LogIn, Crown, Stethoscope, Scan, Zap } from "lucide-re
 import ProGate from "@/components/ProGate";
 import { supabase } from "@/integrations/supabase/client";
 import LanguageSelector from "@/components/LanguageSelector";
-import aiScanImg from "@/assets/ai-scan.jpg";
-import dentalClinicImg from "@/assets/dental-clinic.jpg";
+import aiScanImg from "@/assets/ai-scan.png";
+import dentalClinicImg from "@/assets/dental-clinic.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -56,9 +56,14 @@ const Index = () => {
       if (data?.error) throw new Error(data.error);
       setAnalysisResult(data as DentalAnalysis);
       toast.success("Analysis complete!");
+      
+      // Auto-open emergency drawer if critical
       if ((data as DentalAnalysis).overallHealth === "emergency") {
         setEmergencyDrawerOpen(true);
       }
+      
+      // Scroll to triage section
+      document.getElementById("triage-guide")?.scrollIntoView({ behavior: "smooth" });
     } catch (err: any) {
       console.error("Analysis failed:", err);
       toast.error(err.message || "Analysis failed. Please try again.");
@@ -99,14 +104,6 @@ const Index = () => {
                 <span className="hidden sm:inline">{isPro ? "Pro ✓" : "Pro"}</span>
               </Link>
             </Button>
-            {!user && (
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
-                <Link to="/auth" className="flex items-center gap-1.5">
-                  <LogIn className="w-4 h-4" />
-                  <span className="hidden sm:inline">{t("nav.signIn")}</span>
-                </Link>
-              </Button>
-            )}
             <LanguageSelector compact />
             <span className="text-[10px] font-semibold text-primary/70 bg-primary/10 px-2 py-0.5 rounded-full uppercase tracking-widest border border-primary/20">
               v2.0
@@ -148,7 +145,7 @@ const Index = () => {
                   <div className="border-t border-border/50 pt-6">
                     <ScanResultView imageUrl={capturedImageUrl} />
                   </div>
-                  <div className="border-t border-border/50 pt-6">
+                  <div className="border-t border-border/50 pt-6" id="share-report">
                     <ShareReport analysis={analysisResult} imageUrl={capturedImageUrl} />
                   </div>
                 </>
@@ -194,41 +191,67 @@ const Index = () => {
         )}
 
         {/* Triage Engine */}
-        <section className="space-y-6">
+        <section className="space-y-6" id="triage-guide">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-urgency-red/10 flex items-center justify-center">
                 <Zap className="w-4 h-4 text-urgency-red" />
               </div>
               <h2 className="font-heading font-bold text-2xl text-foreground">
-                {t("index.triageEngine")}
+                {analysisResult ? "Your Clinical Triage" : t("index.triageEngine")}
               </h2>
             </div>
             <p className="text-sm text-muted-foreground max-w-md pl-10">
-              {t("index.triageDesc")}
+              {analysisResult 
+                ? "AI-sorted priority findings based on your recent dental scan."
+                : t("index.triageDesc")}
             </p>
           </div>
           <ProGate feature="Triage Engine">
             <div className="grid sm:grid-cols-3 gap-4">
-              <TriagePriorityCard
-                priority="emergency"
-                title="Acute Pulpitis Detected"
-                summary="Severe inflammation of the dental pulp. Immediate treatment recommended within 24 hours."
-                toothId="14"
-                onFindEmergencyDentist={() => setEmergencyDrawerOpen(true)}
-              />
-              <TriagePriorityCard
-                priority="monitor"
-                title="Early Caries · Buccal"
-                summary="Initial demineralization observed on buccal surface. Monitor and reassess in 30 days."
-                toothId="26"
-              />
-              <TriagePriorityCard
-                priority="healthy"
-                title="No Findings"
-                summary="Tooth surface appears healthy. No abnormalities detected during scan analysis."
-                toothId="11"
-              />
+              {analysisResult ? (
+                <>
+                  {/* Dynamic Findings from AI */}
+                  {analysisResult.findings.map((finding, idx) => (
+                    <TriagePriorityCard
+                      key={idx}
+                      priority={finding.severity as any}
+                      title={finding.area}
+                      summary={`${finding.condition}. ${finding.recommendation}`}
+                      onCall={() => setEmergencyDrawerOpen(true)}
+                      onSendReport={() => {
+                        document.getElementById("share-report")?.scrollIntoView({ behavior: "smooth" });
+                        toast.info("Report prepared for sharing.");
+                      }}
+                      onFindEmergencyDentist={() => setEmergencyDrawerOpen(true)}
+                    />
+                  ))}
+                </>
+              ) : (
+                <>
+                  {/* Default Placeholder Cards for Demo */}
+                  <TriagePriorityCard
+                    priority="emergency"
+                    title="Acute Pulpitis Detected"
+                    summary="Severe inflammation of the dental pulp. Immediate treatment recommended within 24 hours."
+                    toothId="14"
+                    onCall={() => setEmergencyDrawerOpen(true)}
+                    onFindEmergencyDentist={() => setEmergencyDrawerOpen(true)}
+                  />
+                  <TriagePriorityCard
+                    priority="monitor"
+                    title="Early Caries · Buccal"
+                    summary="Initial demineralization observed on buccal surface. Monitor and reassess in 30 days."
+                    toothId="26"
+                  />
+                  <TriagePriorityCard
+                    priority="healthy"
+                    title="No Findings"
+                    summary="Tooth surface appears healthy. No abnormalities detected during scan analysis."
+                    toothId="11"
+                  />
+                </>
+              )}
             </div>
           </ProGate>
         </section>

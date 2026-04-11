@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { I18nProvider, useI18n } from "@/hooks/useI18n";
 import LanguagePickerScreen from "@/components/LanguagePickerScreen";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -60,20 +59,20 @@ const AppContent = () => {
             <Route path="/pitch-deck" element={<PitchDeck />} />
             <Route path="/clinic-flyer" element={<ClinicFlyer />} />
 
-            {/* Protected routes — require payment */}
-            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-            <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/monster-hunter" element={<ProtectedRoute><MonsterHunter /></ProtectedRoute>} />
-            <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
-            <Route path="/bite-force" element={<ProtectedRoute><BiteForceAnalysis /></ProtectedRoute>} />
-            <Route path="/ph-predictor" element={<ProtectedRoute><PhPredictor /></ProtectedRoute>} />
-            <Route path="/flossing-coach" element={<ProtectedRoute><FlossingCoach /></ProtectedRoute>} />
-            <Route path="/tools" element={<ProtectedRoute><Tools /></ProtectedRoute>} />
-            <Route path="/tools-dashboard" element={<ProtectedRoute><ToolsDashboard /></ProtectedRoute>} />
-            <Route path="/reviews" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
-            <Route path="/revenue" element={<ProtectedRoute><Revenue /></ProtectedRoute>} />
-            <Route path="/health-tips" element={<ProtectedRoute><HealthTips /></ProtectedRoute>} />
+            {/* All routes — no login required */}
+            <Route path="/" element={<Index />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/monster-hunter" element={<MonsterHunter />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/bite-force" element={<BiteForceAnalysis />} />
+            <Route path="/ph-predictor" element={<PhPredictor />} />
+            <Route path="/flossing-coach" element={<FlossingCoach />} />
+            <Route path="/tools" element={<Tools />} />
+            <Route path="/tools-dashboard" element={<ToolsDashboard />} />
+            <Route path="/reviews" element={<Reviews />} />
+            <Route path="/revenue" element={<Revenue />} />
+            <Route path="/health-tips" element={<HealthTips />} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

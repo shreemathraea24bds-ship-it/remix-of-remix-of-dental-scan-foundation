@@ -12,6 +12,8 @@ interface TriagePriorityCardProps {
   title: string;
   summary: string;
   toothId?: string;
+  onCall?: () => void;
+  onSendReport?: () => void;
   onFindEmergencyDentist?: () => void;
 }
 
@@ -54,6 +56,8 @@ const TriagePriorityCard = ({
   title,
   summary,
   toothId,
+  onCall,
+  onSendReport,
   onFindEmergencyDentist,
 }: TriagePriorityCardProps) => {
   const config = priorityConfig[priority];
@@ -100,11 +104,11 @@ const TriagePriorityCard = ({
                 Dx: Acute Pulpitis · Tooth #{toothId} · Severity: 9/10 · Recommend: Emergency root canal or extraction within 24hrs.
               </p>
             </div>
-            <Button variant="urgency" className="w-full haptic-button gap-2">
+            <Button variant="urgency" className="w-full haptic-button gap-2" onClick={onCall}>
               <Phone className="w-4 h-4" />
               Call Dentist Now
             </Button>
-            <Button variant="outline" className="w-full haptic-button gap-2 text-xs">
+            <Button variant="outline" className="w-full haptic-button gap-2 text-xs" onClick={onSendReport}>
               <Send className="w-3.5 h-3.5" />
               Send Emergency Report
             </Button>

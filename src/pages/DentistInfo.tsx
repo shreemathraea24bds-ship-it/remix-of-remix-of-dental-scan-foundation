@@ -7,9 +7,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import doctorHero from "@/assets/doctor-hero.jpg";
-import dentalExam from "@/assets/dental-exam.jpg";
-import clinicTech from "@/assets/clinic-tech.jpg";
-import aiScan from "@/assets/ai-scan.jpg";
+import dentalExam from "@/assets/dental-exam.png";
+import clinicTech from "@/assets/clinic-tech.png";
+import aiScan from "@/assets/ai-scan.png";
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },

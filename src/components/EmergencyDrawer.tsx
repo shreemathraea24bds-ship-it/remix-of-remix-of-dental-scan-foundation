@@ -200,6 +200,18 @@ const dentalDirectory: Dentist[] = [
     specialty: "Periodontics & Gum Care",
     photo: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=100&h=100&fit=crop&crop=face",
   },
+  {
+    name: "Dr. Srinivas",
+    hospital: "DentaScan Emergency Support",
+    address: "Primary Hotline",
+    distance: "Priority",
+    rating: 5.0,
+    hours: "24/7 Primary Support",
+    phone: "9443236200",
+    emergency: true,
+    specialty: "Emergency Triage",
+    photo: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=100&h=100&fit=crop&crop=face",
+  },
 ];
 
 interface EmergencyDrawerProps {
@@ -370,6 +382,31 @@ const EmergencyDrawer = ({ open, onClose }: EmergencyDrawerProps) => {
               </div>
             </div>
 
+            {/* Priority Hotline */}
+            <div className="px-5 pb-4">
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="rounded-2xl bg-gradient-to-br from-urgency-red to-urgency-red/80 p-4 text-white shadow-lg overflow-hidden relative"
+              >
+                <div className="absolute -top-6 -right-6 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
+                <div className="relative z-10 flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/80">Immediate Support Hotline</p>
+                    <h4 className="text-xl font-heading font-bold">9443236200</h4>
+                    <p className="text-[11px] text-white/70">Tap to call our primary emergency line</p>
+                  </div>
+                  <Button
+                    size="icon"
+                    className="w-12 h-12 rounded-full bg-white text-urgency-red hover:bg-white/90 shadow-lg"
+                    onClick={() => { window.location.href = `tel:9443236200`; }}
+                  >
+                    <Phone className="w-6 h-6 fill-current" />
+                  </Button>
+                </div>
+              </motion.div>
+            </div>
+
             {/* Dentist list */}
             <div className="px-5 pb-8 space-y-3 overflow-y-auto max-h-[55vh]">
               {filteredDentists.map((d, i) => (
@@ -438,7 +475,7 @@ const EmergencyDrawer = ({ open, onClose }: EmergencyDrawerProps) => {
                       variant={d.emergency ? "destructive" : "default"}
                       size="sm"
                       className="flex-1 gap-1.5"
-                      onClick={() => window.open(`tel:${d.phone.replace(/[^+\d]/g, "")}`)}
+                      onClick={() => { window.location.href = `tel:${d.phone.replace(/[^+\d]/g, "")}`; }}
                     >
                       <Phone className="w-3.5 h-3.5" />
                       Call Now

@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Trophy, Shield, ArrowLeft, Lock, Crown, Swords, Gem } from "lucide-react";
+import { Trophy, Shield, ArrowLeft, Lock, Crown, Swords, Gem, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BattleScreen from "@/components/monster-hunter/BattleScreen";
+import MouthDetectionBattle from "@/components/monster-hunter/MouthDetectionBattle";
 import TrophyRoom from "@/components/monster-hunter/TrophyRoom";
 import ParentCommandCenter from "@/components/monster-hunter/ParentCommandCenter";
 import GuildBriefing from "@/components/monster-hunter/GuildBriefing";
@@ -72,7 +73,7 @@ const MonsterHunter = () => {
   const { t } = useI18n();
   const game = useMonsterHunter();
   const familySync = useFamilySync();
-  const [view, setView] = useState<"home" | "battle">("home");
+  const [view, setView] = useState<"home" | "battle" | "mouth-battle">("home");
   const [parentUnlocked, setParentUnlocked] = useState(false);
   const [pinInput, setPinInput] = useState("");
   const [showPinEntry, setShowPinEntry] = useState(false);
@@ -179,17 +180,46 @@ const MonsterHunter = () => {
     });
   };
 
-  // Phase 1: Age gate
-  if (!ageGateComplete) {
-    return <AgeGateCamera onResult={handleAgeResult} onSkip={handleAgeSkip} />;
-  }
+  // Age gate removed — go straight to the game
+  // if (!ageGateComplete) {
+  //   return <AgeGateCamera onResult={handleAgeResult} onSkip={handleAgeSkip} />;
+  // }
 
   // Phase 2A/B split by detection
   const isChildMode = detectedIsChild !== false;
 
-  // FTUE only for children
-  if (!ftueComplete && isChildMode) {
-    return <HunterFTUE onComplete={handleFTUEComplete} />;
+  // FTUE disabled — go straight to home
+  // if (!ftueComplete && isChildMode) {
+  //   return <HunterFTUE onComplete={handleFTUEComplete} />;
+  // }
+
+  // Mouth Detection Battle view
+  if (view === "mouth-battle") {
+    return (
+      <MouthDetectionBattle
+        onBack={() => setView("home")}
+        onBattleComplete={(defeated, total, duration) => {
+          // Award crystal shards
+          const shards = defeated * 3;
+          addCrystalShards(shards);
+          setCrystalShards(getCrystalShards());
+
+          const hunterName = (() => { try { return localStorage.getItem("dentascan-hunter-name") || "Hunter"; } catch { return "Hunter"; } })();
+          familySync.postBattleEvent({
+            event_type: "mouth_battle_complete",
+            hunter_name: hunterName,
+            monsters_defeated: defeated,
+            total_monsters: total,
+            duration_seconds: duration,
+            streak: game.currentStreak,
+            loot_collected: [],
+            metadata: { mode: "mouth-detection" },
+          });
+
+          setView("home");
+        }}
+      />
+    );
   }
 
   // Battle view
@@ -294,6 +324,43 @@ const MonsterHunter = () => {
               </Button>
             </div>
           )}
+
+          {/* Mouth Monster Hunt - NEW */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="rounded-xl p-4 space-y-3"
+            style={{
+              background: "linear-gradient(135deg, hsl(280 60% 15%), hsl(190 50% 12%))",
+              border: "1px solid hsl(280 60% 30% / 0.3)",
+              boxShadow: "0 0 20px rgba(147, 51, 234, 0.1)",
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">👄</span>
+              <div>
+                <h3 className="font-bold text-sm" style={{ fontFamily: "'Orbitron', sans-serif", color: "hsl(280, 80%, 70%)" }}>
+                  Mouth Monster Hunt
+                </h3>
+                <p className="text-[10px]" style={{ color: "hsl(280, 40%, 60%)" }}>
+                  Open wide → See the monsters → Brush them away!
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={() => setView("mouth-battle")}
+              className="w-full py-5 text-sm font-bold rounded-xl gap-2"
+              style={{
+                background: "linear-gradient(135deg, hsl(280, 80%, 50%), hsl(190, 100%, 50%))",
+                color: "white",
+                boxShadow: "0 0 15px rgba(147, 51, 234, 0.3)",
+              }}
+            >
+              <Sparkles className="w-4 h-4" />
+              Start Mouth Hunt!
+            </Button>
+          </motion.div>
 
           {/* Daily Mission */}
           <DailyMissions currentStreak={game.currentStreak} crystalShards={crystalShards} weeklyDiamonds={weeklyDiamonds} onStartMission={startBattle} />
