@@ -14,7 +14,6 @@ import ConsultationPayment from "./ConsultationPayment";
 
 interface ConsultationRequestProps {
   onClose?: () => void;
-  defaultMessage?: string;
 }
 
 interface DoctorProfile {
@@ -25,11 +24,11 @@ interface DoctorProfile {
   consultation_fee: number;
 }
 
-const ConsultationRequest = ({ onClose, defaultMessage = "" }: ConsultationRequestProps) => {
+const ConsultationRequest = ({ onClose }: ConsultationRequestProps) => {
   const { user, profile } = useAuth();
   const [doctors, setDoctors] = useState<DoctorProfile[]>([]);
   const [selectedDoctor, setSelectedDoctor] = useState<string | null>(null);
-  const [message, setMessage] = useState(defaultMessage);
+  const [message, setMessage] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [preferredMode, setPreferredMode] = useState<"video" | "phone" | "whatsapp">("video");
   const [loading, setLoading] = useState(false);

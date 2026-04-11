@@ -301,7 +301,7 @@ Provide extremely accurate information in this JSON format:
 
         {/* Consultation Request */}
         {user && (
-          <section className="space-y-6" id="consultation-section">
+          <section className="space-y-6">
             {/* Clinic banner */}
             <div className="relative -mx-4 overflow-hidden rounded-2xl">
               <img src={dentalClinicImg} alt="Modern dental clinic" className="w-full h-36 sm:h-48 object-cover" />
@@ -329,14 +329,7 @@ Provide extremely accurate information in this JSON format:
               </div>
             </div>
             {showConsultation && (
-              <ConsultationRequest 
-                onClose={() => setShowConsultation(false)} 
-                defaultMessage={
-                  analysisResult 
-                    ? `Requesting consult regarding my DentaScan™ AI Report.\n\nAI Diagnostic Summary:\n${analysisResult.summary}\n\nTop Findings:\n${analysisResult.findings.map(f => `- ${f.area}: ${f.condition}`).join('\n')}` 
-                    : ""
-                }
-              />
+              <ConsultationRequest onClose={() => setShowConsultation(false)} />
             )}
             <InviteDentist />
           </section>
@@ -376,10 +369,6 @@ Provide extremely accurate information in this JSON format:
                         toast.info("Report prepared for sharing.");
                       }}
                       onFindEmergencyDentist={() => setEmergencyDrawerOpen(true)}
-                      onBook={() => {
-                        setShowConsultation(true);
-                        document.getElementById("consultation-section")?.scrollIntoView({ behavior: "smooth" });
-                      }}
                     />
                   ))}
                 </>
@@ -393,30 +382,18 @@ Provide extremely accurate information in this JSON format:
                     toothId="14"
                     onCall={() => setEmergencyDrawerOpen(true)}
                     onFindEmergencyDentist={() => setEmergencyDrawerOpen(true)}
-                    onBook={() => {
-                      setShowConsultation(true);
-                      document.getElementById("consultation-section")?.scrollIntoView({ behavior: "smooth" });
-                    }}
                   />
                   <TriagePriorityCard
                     priority="monitor"
                     title="Early Caries · Buccal"
                     summary="Initial demineralization observed on buccal surface. Monitor and reassess in 30 days."
                     toothId="26"
-                    onBook={() => {
-                      setShowConsultation(true);
-                      document.getElementById("consultation-section")?.scrollIntoView({ behavior: "smooth" });
-                    }}
                   />
                   <TriagePriorityCard
                     priority="healthy"
                     title="No Findings"
                     summary="Tooth surface appears healthy. No abnormalities detected during scan analysis."
                     toothId="11"
-                    onBook={() => {
-                      setShowConsultation(true);
-                      document.getElementById("consultation-section")?.scrollIntoView({ behavior: "smooth" });
-                    }}
                   />
                 </>
               )}

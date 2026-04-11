@@ -15,7 +15,6 @@ interface TriagePriorityCardProps {
   onCall?: () => void;
   onSendReport?: () => void;
   onFindEmergencyDentist?: () => void;
-  onBook?: () => void;
 }
 
 const priorityConfig = {
@@ -163,7 +162,7 @@ const TriagePriorityCard = ({
               </motion.div>
             )}
 
-            <Button variant="clinical" className="w-full haptic-button gap-2" onClick={onBook}>
+            <Button variant="clinical" className="w-full haptic-button gap-2">
               <Calendar className="w-4 h-4" />
               Book Appointment
             </Button>
@@ -194,7 +193,7 @@ const TriagePriorityCard = ({
               <p className="text-[10px] text-muted-foreground">days remaining</p>
             </div>
 
-            <Button variant="outline" className="w-full haptic-button gap-2 text-xs" onClick={onBook}>
+            <Button variant="outline" className="w-full haptic-button gap-2 text-xs">
               <Calendar className="w-3.5 h-3.5" />
               Schedule Cleaning
             </Button>
