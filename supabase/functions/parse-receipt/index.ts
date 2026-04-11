@@ -96,7 +96,7 @@ Example: {"name":"John","payment_date":"09/03/2026","payment_time":"14:30","amou
     });
   } catch (err) {
     console.error("Error:", err);
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ error: (err as Error).message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
