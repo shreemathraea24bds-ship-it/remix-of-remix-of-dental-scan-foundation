@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Camera, Mic, Droplets, Heart, Activity, Shield, Sparkles } from "lucide-react";
+import { ArrowLeft, Camera, Mic, Droplets, Heart, Activity, Shield, Sparkles, Swords } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useI18n } from "@/hooks/useI18n";
@@ -63,11 +63,22 @@ const tools: ToolCard[] = [
     features: ["32-zone coverage", "5s per-tooth timer", "Animated dental map", "Technique guidance", "Session tracking"],
   },
   {
+    title: "Monster Hunter",
+    subtitle: "Gamified Brushing",
+    description: "Camera-based mouth detection spawns tooth monsters that can only be defeated by real brushing motion. Fun for kids and adults alike!",
+    icon: <Swords className="w-6 h-6" />,
+    href: "/monster-hunter",
+    color: "text-neon-purple",
+    bg: "bg-purple-500/8",
+    badge: "New",
+    features: ["Mouth detection", "Brushing motion tracking", "Monster battles", "Trophy room", "Daily missions"],
+  },
+  {
     title: "Triage Engine",
     subtitle: "Priority Assessment",
     description: "AI-powered priority-based triage with emergency detection, appointment urgency scoring, and actionable clinical next steps.",
     icon: <Activity className="w-6 h-6" />,
-    href: "/",
+    href: "/#triage-guide",
     color: "text-urgency-red",
     bg: "bg-urgency-red/8",
     badge: "Pro",
@@ -78,7 +89,7 @@ const tools: ToolCard[] = [
     subtitle: "14-Day Protocol",
     description: "Longitudinal lesion monitoring with photo gallery, progress timeline, and automatic biopsy alert when a lesion persists beyond 10 days.",
     icon: <Shield className="w-6 h-6" />,
-    href: "/",
+    href: "/#lesion-tracker",
     color: "text-plaque",
     bg: "bg-plaque/8",
     badge: "Pro",
